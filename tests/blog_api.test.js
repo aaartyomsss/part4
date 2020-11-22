@@ -2,30 +2,19 @@ const { TestScheduler } = require('jest')
 const mongoose = require('mongoose')
 const supertest = require('supertest')
 const app = require('../app')
+const helper = require('../utils/test_helper')
 const Blog = require('../models/blog')
+
 
 const api = supertest(app)
 
 //Initializing initial database
-const initBlogs = [
-    {
-        title: 'Dummy',
-        author: 'Ava',
-        likes: 17,
-        url: 'dummyUrl'
-    },
-    {
-        title: 'And another Dummy',
-        author: 'Just Ava',
-        likes: 16,
-        url: 'AndAnotherDummyUrl'
-    }
-]
+
 beforeEach(async () => {
     await Blog.deleteMany({})
-    let blog = new Blog(initBlogs[0])
+    let blog = new Blog(helper.initBlogs[0])
     await blog.save()
-    blog = new Blog(initBlogs[1])
+    blog = new Blog(helper.initBlogs[1])
     await blog.save()
 })
 
@@ -42,7 +31,7 @@ test('notes are returned as json', async () => {
 test('all blogs are returned', async () => {
     const response = await api.get('/api/blogs')
 
-    expect(response.body).toHaveLength(initBlogs.length)
+    expect(response.body).toHaveLength(helper.initBlogs.length)
 })
 
 test('notes are identified by id', async () => {
@@ -67,7 +56,7 @@ test('new post is submitted to the db', async () => {
 
     const response = await api.get('/api/blogs')
 
-    expect(response.body).toHaveLength(initBlogs.length + 1)
+    expect(response.body).toHaveLength(helper.initBlogs.length + 1)
 })
 
 test('if likes are undefined, then set to 0', async () => {

@@ -3,6 +3,8 @@ Content-Type: application/json
 
 {
     "author": "anonymous",
+    "title": "Test123",
     "url": "absent",
-    "likes": 69420
+    "likes": 69420,
+    "user": "5fba53d82351ba16a8db5cff"
 }
