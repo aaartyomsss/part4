@@ -3,6 +3,7 @@ const router = express.Router()
 const Blog = require('../models/blog')
 const User = require('../models/user')
 require('express-async-errors')
+const jwt = require('jsonwebtoken')
 
 router.get('/', async (request, response) => {
     const blogs = await Blog.find({}).populate('user', { username: 1 })
@@ -11,7 +12,14 @@ router.get('/', async (request, response) => {
 
 router.post('/', async (request, response) => {
     
-    const user = await User.findById(request.body.user)
+    // Validation, i.e. returning an object which the token is based on
+    const decodedToken = jwt.verify(request.token, process.env.SECRET)
+
+    if(!request.token || !decodedToken.id){
+        return response.status(401).json({ error: 'token missing or invalid' })
+    }
+    const user = await User.findById(decodedToken.id)
+
     
     if (!request.body.title || !request.body.url) {
         return response.status(400).send({error: 'Missing required field(s)'})
@@ -47,7 +55,22 @@ router.post('/', async (request, response) => {
 })
 
 router.delete('/:id', async (request, response) => {
-    await Blog.findByIdAndRemove(request.params.id)
+    
+    const decodedToken = jwt.verify(request.token, process.env.SECRET)
+
+    if(!request.token || !decodedToken.id){
+        return response.status(401).json({ error: 'token missing or invalid' })
+    }
+
+    const user = await User.findById(decodedToken.id)
+    const blogToDelete = await Blog.findById(request.params.id)
+
+    if (blogToDelete.user.toString() === user.id.toString() ){
+        const removed = await Blog.remove(blogToDelete)
+        user.blogs = user.blogs.splice(-1)
+    }
+    
+    
     response.status(204).end()
 } )
 
