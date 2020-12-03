@@ -8,6 +8,7 @@ const logger = require('./utils/loggers')
 const mongoose = require('mongoose')
 const userRouter = require('./controllers/users')
 const loginRouter = require('./controllers/login')
+const testRouter = require('./controllers/test')
 
 logger.info('connecting to ', config.DB_CONNECTION)
 
@@ -26,6 +27,9 @@ app.use(middleware.tokenExtractor)
 app.use(middleware.requestLogger)
 
 // Routes
+if (process.env.NODE_ENV === 'test') {
+    app.use('api/testing', testRouter)
+}
 app.use('/api/blogs', router)
 app.use('/api/users', userRouter)
 app.use('/api/login', loginRouter)
