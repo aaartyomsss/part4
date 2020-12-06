@@ -10,21 +10,22 @@ router.get('/', async (request, response) => {
     response.json(blogs.map(blog => blog.toJSON()))
 })
 
+
 router.post('/', async (request, response) => {
-    
+
     // Validation, i.e. returning an object which the token is based on
     const decodedToken = jwt.verify(request.token, process.env.SECRET)
 
-    if(!request.token || !decodedToken.id){
+    if (!request.token || !decodedToken.id) {
         return response.status(401).json({ error: 'token missing or invalid' })
     }
     const user = await User.findById(decodedToken.id)
 
-    
+
     if (!request.body.title || !request.body.url) {
-        return response.status(400).send({error: 'Missing required field(s)'})
+        return response.status(400).send({ error: 'Missing required field(s)' })
     } else if (!request.body.likes) {
-        
+
 
 
         const blog = new Blog({
@@ -54,25 +55,26 @@ router.post('/', async (request, response) => {
 
 })
 
+
 router.delete('/:id', async (request, response) => {
-    
+
     const decodedToken = jwt.verify(request.token, process.env.SECRET)
 
-    if(!request.token || !decodedToken.id){
+    if (!request.token || !decodedToken.id) {
         return response.status(401).json({ error: 'token missing or invalid' })
     }
 
     const user = await User.findById(decodedToken.id)
     const blogToDelete = await Blog.findById(request.params.id)
 
-    if (blogToDelete.user.toString() === user.id.toString() ){
+    if (blogToDelete.user.toString() === user.id.toString()) {
         const removed = await Blog.remove(blogToDelete)
         user.blogs = user.blogs.splice(-1)
     }
-    
-    
+
+
     response.status(204).end()
-} )
+})
 
 router.put('/:id', async (request, response) => {
     const body = request.body
@@ -83,7 +85,7 @@ router.put('/:id', async (request, response) => {
         url: body.url
     }
 
-    const updated = await Blog.findByIdAndUpdate(request.params.id, blog, { new : true})
+    const updated = await Blog.findByIdAndUpdate(request.params.id, blog, { new: true })
     response.json(updated)
 })
 

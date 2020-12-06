@@ -28,7 +28,7 @@ app.use(middleware.requestLogger)
 
 // Routes
 if (process.env.NODE_ENV === 'test') {
-    app.use('api/testing', testRouter)
+    app.use('/api/testing', testRouter)
 }
 app.use('/api/blogs', router)
 app.use('/api/users', userRouter)
