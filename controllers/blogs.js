@@ -38,7 +38,9 @@ router.post('/', async (request, response) => {
             user: user._id
         })
         const savedBlog = await blog.save()
+        console.log(savedBlog)
         user.blogs = user.blogs.concat(savedBlog._id)
+        await user.save()
         response.json(savedBlog)
     } else {
         const blog = new Blog({
