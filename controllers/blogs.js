@@ -6,8 +6,13 @@ require('express-async-errors')
 const jwt = require('jsonwebtoken')
 
 router.get('/', async (request, response) => {
-    const blogs = await Blog.find({}).populate('user', { username: 1 })
+    const blogs = await Blog.find({}).populate('user')
     response.json(blogs.map(blog => blog.toJSON()))
+})
+
+router.get('/:id', async (req, res) => {
+    const blog = await Blog.findById(req.params.id)
+    res.json(blog.toJSON())
 })
 
 
@@ -25,9 +30,6 @@ router.post('/', async (request, response) => {
     if (!request.body.title || !request.body.url) {
         return response.status(400).send({ error: 'Missing required field(s)' })
     } else if (!request.body.likes) {
-
-
-
         const blog = new Blog({
             title: request.body.title,
             url: request.body.url,
@@ -47,7 +49,9 @@ router.post('/', async (request, response) => {
             user: user._id
         })
         const savedBlog = await blog.save()
+        console.log(savedBlog)
         user.blogs = user.blogs.concat(savedBlog._id)
+        console.log(user)
         await user.save()
 
         response.json(savedBlog)
